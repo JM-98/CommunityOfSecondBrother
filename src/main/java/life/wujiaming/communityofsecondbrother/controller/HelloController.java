@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+// demo for learning
 @Controller
 public class HelloController {
     // Ctrl + P 提示需要传入的参数
@@ -14,7 +15,7 @@ public class HelloController {
         // 浏览器传过来的值，放到model中
         model.addAttribute("name", name);
         // 去模板目录templates找HTML文件
-        return "hello";
+        return "index";
     }
 
 }
