@@ -1,11 +1,13 @@
 package life.wujiaming.communityofsecondbrother.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import life.wujiaming.communityofsecondbrother.dto.AccessTokenDTO;
 import life.wujiaming.communityofsecondbrother.dto.GithubUser;
 import life.wujiaming.communityofsecondbrother.mapper.UserMapper;
 import life.wujiaming.communityofsecondbrother.model.User;
 import life.wujiaming.communityofsecondbrother.provider.GithubProvider;
+import life.wujiaming.communityofsecondbrother.provider.WechatProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -24,9 +26,6 @@ import java.util.UUID;
 public class AuthorizeController {
 
     @Autowired
-    private GithubProvider githubProvider;
-
-    @Autowired
     private UserMapper userMapper;
 
     // @Value注解会去配置文件里读取github.client.id的值，并赋值给clientId
@@ -39,11 +38,17 @@ public class AuthorizeController {
     @Value("${github.redirect.uri}")
     private String githubRedirectUri;
 
+    @Autowired
+    private GithubProvider githubProvider;
+
     private String appId;
 
     private String appSecret;
 
     private String redirectUri;
+
+    @Autowired
+    private WechatProvider wechatProvider;
 
 //    @GetMapping("/callback")
     public String githubCallback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request) {
@@ -78,7 +83,7 @@ public class AuthorizeController {
     }
 
     @GetMapping("/callback")
-    public String callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest httpServletRequest) {
+    public String callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setClientId(appId);
         accessTokenDTO.setClientSecret(appSecret);
@@ -86,7 +91,7 @@ public class AuthorizeController {
         accessTokenDTO.setRedirectUri(redirectUri);
         accessTokenDTO.setState(state);
         // 获取Wechat用户的信息
-
+        String accessToken = wechatProvider.getAccessToken(accessTokenDTO);
 
         // 登录成功后，系统返回index页面；加上redirect后，网址会修改为index
         return "redirect:/";
